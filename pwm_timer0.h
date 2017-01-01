@@ -9,20 +9,20 @@
 #define MODE_PWM_PHASE_CORRECT_OCR	0b101
 #define MODE_FAST_PWM_OCR			0b111
 
-#define MODE MODE_FAST_PWM
+#define MODE 				MODE_FAST_PWM
 
-#define PWM_DDR DDRB
-#define PWM_PIN PINB2
+#define PWM_DDR 			DDRB
+#define PWM_PIN 			PINB2
 
-#define SET_PWM_DDR (PWM_DDR |= _BV(PWM_PIN))
+#define SET_PWM_DDR()		(PWM_DDR |= _BV(PWM_PIN))
 
-#define BIT_WGM_02		((MODE & 0x100) >> 2)
-#define BIT_WGM_01_00	(MODE & 0x11)
+#define BIT_WGM_02			((MODE & 0x100) >> 2)
+#define BIT_WGM_01_00		(MODE & 0x11)
 
-#define SET_TCCR_COM	(TCCR0A |= _BV(COM0A1))
-#define SET_TCCR_WGM	{ (TCCR0A |= BIT_WGM_01_00); (TCCR0B |= (BIT_WGM_02 << WGM02)); }
+#define SET_TCCR_COM()		(TCCR0A |= _BV(COM0A1))
+#define SET_TCCR_WGM()		{ (TCCR0A |= BIT_WGM_01_00); (TCCR0B |= (BIT_WGM_02 << WGM02)); }
 
-#define SET_TIMER_MASK	(TIMSK0 |= _BV(TOIE0))
+#define SET_TIMER_MASK()	(TIMSK0 |= _BV(TOIE0))
 
 #define SET_OCR(compare)	OCR0A = compare
 
@@ -35,8 +35,8 @@
 #define CLOCK_EXTERNAL_FALLING		0b110
 #define CLOCK_EXTERNAL_RISING		0b111
 
-#define CLOCK_SELECT CLOCK_PRESCALE_8
+#define CLOCK_SELECT		CLOCK_PRESCALE_8
 
-#define SET_TCCR_CLOCK TCCR0B |= CLOCK_SELECT
+#define SET_TCCR_CLOCK()	(TCCR0B |= CLOCK_SELECT)
 
 #endif

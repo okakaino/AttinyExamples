@@ -1,14 +1,15 @@
 
 # Name: Makefile
 
-PROJECT_NAME         := blink_transmitter
+PROJECT_NAME         := led_pwm_interrupt
 MCU                  := attiny84
 F_CPU                := 20000000UL
 EXTRA_INC_DIRS       := .
 
 C_SRC                := $(PROJECT_NAME).c
 A_SRC                :=
-CPP_SRC              := $(PROJECT_NAME).cpp
+CPP_SRC              := 
+#$(PROJECT_NAME).cpp RF24.cpp
 
 EXTRA_C_DEFS         :=
 EXTRA_C_UNDEFS       :=
@@ -28,45 +29,39 @@ C_STANDARD           := -std=gnu99
 DEBUG                := stabs
 REMOVE               := rm -f
 
-C_FLAGS              := -g$(DEBUG)
-C_FLAGS              += $(foreach ICDEF,$(EXTRA_C_DEFS),-D"$(ICDEF)")
-C_FLAGS              += $(foreach ICUNDEF,$(EXTRA_C_UNDEFS),-U$(ICUNDEF))
-C_FLAGS              += -O$(OPTIMIZATION)
-C_FLAGS              += -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums
-C_FLAGS              += -Wall
-C_FLAGS              += -Wa,-adhlns=$(LST)
-C_FLAGS              += $(patsubst %,-I%,$(EXTRA_INC_DIRS))
-C_FLAGS              += $(C_STANDARD)
+LST_FLAG             := $(foreach VAR_LST,$(LST),-Wa,-adhlns=$(VAR_LST))
+
+COMMON_FLAGS         :=
+COMMON_FLAGS         += -DF_CPU=$(F_CPU)
+COMMON_FLAGS         += -I$(EXTRA_INC_DIRS)
+COMMON_FLAGS         += -mmcu=$(MCU)
+
+CXX_COMMON_FLAGS     :=
+CXX_COMMON_FLAGS     += -g$(DEBUG)
+CXX_COMMON_FLAGS     += $(foreach ICDEF,$(EXTRA_C_DEFS),-D"$(ICDEF)")
+CXX_COMMON_FLAGS     += $(foreach ICUNDEF,$(EXTRA_C_UNDEFS),-U$(ICUNDEF))
+CXX_COMMON_FLAGS     += -O$(OPTIMIZATION)
+CXX_COMMON_FLAGS     += -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums -fno-exceptions
+CXX_COMMON_FLAGS     += -fdata-sections -ffunction-sections
+CXX_COMMON_FLAGS     += -Wall
+CXX_COMMON_FLAGS     += $(LST_FLAG)
+CXX_COMMON_FLAGS     += $(patsubst %,-I%,$(EXTRA_INC_DIRS))
+CXX_COMMON_FLAGS     += -MMD
+
+C_FLAGS              := $(C_STANDARD)
 C_FLAGS              += -gstrict-dwarf
 C_FLAGS              += $(EXTRA_C_OPTIONS)
-C_FLAGS              += -DF_CPU=$(F_CPU)
-C_FLAGS              += -fno-exceptions
-C_FLAGS              += -fdata-sections -ffunction-sections
-C_FLAGS              += -MMD
-C_FLAGS              += -mmcu=$(MCU)
-C_FLAGS              += -I$(EXTRA_INC_DIRS)
+C_FLAGS              += $(COMMON_FLAGS)
+C_FLAGS              += $(CXX_COMMON_FLAGS)
 
-CPP_FLAGS            := -g$(DEBUG)
-CPP_FLAGS            += $(foreach ICDEF,$(EXTRA_C_DEFS),-D"$(ICDEF)")
-CPP_FLAGS            += $(foreach ICUNDEF,$(EXTRA_C_UNDEFS),-U$(ICUNDEF))
-CPP_FLAGS            += -O$(OPTIMIZATION)
-CPP_FLAGS            += -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums
-CPP_FLAGS            += -Wall
-CPP_FLAGS            += -Wa,-adhlns=$(LST)
-CPP_FLAGS            += $(patsubst %,-I%,$(EXTRA_INC_DIRS))
-CPP_FLAGS            += $(EXTRA_CPP_OPTIONS)
-CPP_FLAGS            += -DF_CPU=$(F_CPU)
-CPP_FLAGS            += -fno-exceptions -fno-threadsafe-statics
-CPP_FLAGS            += -fdata-sections -ffunction-sections
-CPP_FLAGS            += -MMD
-CPP_FLAGS            += -mmcu=$(MCU)
-CPP_FLAGS            += -I$(EXTRA_INC_DIRS)
+CPP_FLAGS            := $(EXTRA_CPP_OPTIONS)
+CPP_FLAGS            += -fno-threadsafe-statics
+CPP_FLAGS            += $(COMMON_FLAGS)
+CPP_FLAGS            += $(CXX_COMMON_FLAGS)
 
-AS_FLAGS             := -Wa,-adhlns=$(LST),-gstabs,--listing-cont-lines=100
-AS_FLAGS             += -DF_CPU=$(F_CPU)
-AS_FLAGS             += -mmcu=$(MCU)
-AS_FLAGS             += -I$(EXTRA_INC_DIRS)
+AS_FLAGS             := $(LST_FLAG),-gstabs,--listing-cont-lines=100
 AS_FLAGS             += -x assembler-with-cpp
+AS_FLAGS             += $(COMMON_FLAGS)
 
 LD_FLAGS             := -Wl,--gc-sections
 LDFLAGS              += $(PRINTF_LIB) $(SCANF_LIB) $(MATH_LIB)
