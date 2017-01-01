@@ -1,14 +1,14 @@
 
 # Name: Makefile
 
-PROJECT_NAME         := led_pwm_non_interrupt
+PROJECT_NAME         := blink_transmitter
 MCU                  := attiny84
 F_CPU                := 20000000UL
 EXTRA_INC_DIRS       := .
 
 C_SRC                := $(PROJECT_NAME).c
 A_SRC                :=
-CPP_SRC              :=
+CPP_SRC              := $(PROJECT_NAME).cpp
 
 EXTRA_C_DEFS         :=
 EXTRA_C_UNDEFS       :=
@@ -49,8 +49,9 @@ C_FLAGS              += -I$(EXTRA_INC_DIRS)
 CPP_FLAGS            := -g$(DEBUG)
 CPP_FLAGS            += $(foreach ICDEF,$(EXTRA_C_DEFS),-D"$(ICDEF)")
 CPP_FLAGS            += $(foreach ICUNDEF,$(EXTRA_C_UNDEFS),-U$(ICUNDEF))
-CPP_FLAGS            += -O$(OPT)
-CPP_FLAGS            += -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums CPP_FLAGS += -Wall
+CPP_FLAGS            += -O$(OPTIMIZATION)
+CPP_FLAGS            += -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums
+CPP_FLAGS            += -Wall
 CPP_FLAGS            += -Wa,-adhlns=$(LST)
 CPP_FLAGS            += $(patsubst %,-I%,$(EXTRA_INC_DIRS))
 CPP_FLAGS            += $(EXTRA_CPP_OPTIONS)
