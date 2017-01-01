@@ -4,22 +4,20 @@
 #include <stdbool.h>
 #include <util/delay.h>
 
-char duty_cycle = 0;
+#include "pwm.h"
 
 int main(void)
 {
-	DDRB |= _BV(PINB2);
-	TCCR0A |= _BV(COM0A1) | _BV(WGM00) | _BV(WGM01);
-	// TIMSK0 |= _BV(TOIE0);
+	SET_PWM_DDR;
+	SET_TCCR_COM;
+	SET_TCCR_WGM;
 
 	char duty_cycle = 0;
 	bool counting_up = true;
 
 	OCR0A = duty_cycle * 255 / 100;
 
-	// sei();
-
-	TCCR0B |= _BV(CS00); // | _BV(CS01);
+	SET_TCCR_CLOCK;
 
 	while(1)
 	{
@@ -43,8 +41,3 @@ int main(void)
 
 	return 0;
 }
-
-// ISR(TIM0_OVF_vect)
-// {
-// 	OCR0A = duty_cycle * 255 / 100;
-// }

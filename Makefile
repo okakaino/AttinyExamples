@@ -1,32 +1,32 @@
 
 # Name: Makefile
 
-PROJECT_NAME         := led_pwm_interrupt
+PROJECT_NAME         := led_pwm_non_interrupt
 MCU                  := attiny84
 F_CPU                := 20000000UL
+EXTRA_INC_DIRS       := .
 
 C_SRC                := $(PROJECT_NAME).c
 A_SRC                :=
 CPP_SRC              :=
 
+EXTRA_C_DEFS         :=
+EXTRA_C_UNDEFS       :=
+EXTRA_C_OPTIONS      := -Wstrict-prototypes 
+EXTRA_CPP_OPTIONS    :=
+
 OBJ_DIR              := Builds
 OBJ                  := $(addprefix $(OBJ_DIR)/,$(C_SRC:.c=.o)) $(addprefix $(OBJ_DIR)/,$(CPP_SRC:.cpp=.o)) $(addprefix $(OBJ_DIR)/,$(A_SRC:.S=.o))
-LST                  := $(addprefix $(OBJ_DIR)/,$(C_SRC:.c=.lst)) $(addprefix $(OBJ_DIR)/,$(CPP_SRC:.S=.lst)) $(addprefix $(OBJ_DIR)/,$(A_SRC:.S=.lst))
+LST                  := $(addprefix $(OBJ_DIR)/,$(C_SRC:.c=.lst)) $(addprefix $(OBJ_DIR)/,$(CPP_SRC:.cpp=.lst)) $(addprefix $(OBJ_DIR)/,$(A_SRC:.S=.lst))
 GEN_DEP_FLAGS        := -M
 DEPS_DIR             := $(OBJ_DIR)/.dep
 DEPS                 := $(C_SRC:%.c=$(DEPS_DIR)/%.d)
 
 FORMAT               := ihex
 OPTIMIZATION         := s
-EXTRA_INC_DIRS       := .
 C_STANDARD           := -std=gnu99
 DEBUG                := stabs
 REMOVE               := rm -f
-
-EXTRA_C_DEFS         :=
-EXTRA_C_UNDEFS       :=
-EXTRA_C_OPTIONS      := -Wstrict-prototypes 
-EXTRA_CPP_OPTIONS    :=
 
 C_FLAGS              := -g$(DEBUG)
 C_FLAGS              += $(foreach ICDEF,$(EXTRA_C_DEFS),-D"$(ICDEF)")
@@ -34,7 +34,7 @@ C_FLAGS              += $(foreach ICUNDEF,$(EXTRA_C_UNDEFS),-U$(ICUNDEF))
 C_FLAGS              += -O$(OPTIMIZATION)
 C_FLAGS              += -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums
 C_FLAGS              += -Wall
-C_FLAGS              += -Wa,-adhlns=$<.lst
+C_FLAGS              += -Wa,-adhlns=$(LST)
 C_FLAGS              += $(patsubst %,-I%,$(EXTRA_INC_DIRS))
 C_FLAGS              += $(C_STANDARD)
 C_FLAGS              += -gstrict-dwarf
@@ -51,7 +51,7 @@ CPP_FLAGS            += $(foreach ICDEF,$(EXTRA_C_DEFS),-D"$(ICDEF)")
 CPP_FLAGS            += $(foreach ICUNDEF,$(EXTRA_C_UNDEFS),-U$(ICUNDEF))
 CPP_FLAGS            += -O$(OPT)
 CPP_FLAGS            += -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums CPP_FLAGS += -Wall
-CPP_FLAGS            += -Wa,-adhlns=$<.lst
+CPP_FLAGS            += -Wa,-adhlns=$(LST)
 CPP_FLAGS            += $(patsubst %,-I%,$(EXTRA_INC_DIRS))
 CPP_FLAGS            += $(EXTRA_CPP_OPTIONS)
 CPP_FLAGS            += -DF_CPU=$(F_CPU)
@@ -61,7 +61,7 @@ CPP_FLAGS            += -MMD
 CPP_FLAGS            += -mmcu=$(MCU)
 CPP_FLAGS            += -I$(EXTRA_INC_DIRS)
 
-AS_FLAGS             := -Wa,-adhlns=$<.lst,-gstabs,--listing-cont-lines=100
+AS_FLAGS             := -Wa,-adhlns=$(LST),-gstabs,--listing-cont-lines=100
 AS_FLAGS             += -DF_CPU=$(F_CPU)
 AS_FLAGS             += -mmcu=$(MCU)
 AS_FLAGS             += -I$(EXTRA_INC_DIRS)
@@ -272,8 +272,12 @@ install: flash
 disasm:	$(FILENPROJECT_NAMEAME).elf
 	$(OBJ_DUMP) -d $(PROJECT_NAME).elf
 
-cpp:
-	$(GCC) -E $(PROJECT_NAME).c
+prep:
+	$(GCC) $(C_FLAGS) -E $(PROJECT_NAME).c
+
+size:
+	$(HEX_SIZE)
+	$(ELF_SIZE)
 
 clean: begin clean_list end
 
@@ -293,4 +297,4 @@ clean_list :
 	$(REMOVE) $(OBJ_DIR)/$(C_SRC:.c=.d)
 	$(REMOVE) $(OBJ_DIR)/.dep/*
 
-.PHONY : all begin finish end sizebefore sizeafter build elf hex eep lss sym clean clean_list flash install disasm cpp #coff extcoff debug gdb-config
+.PHONY : all begin finish end sizebefore sizeafter build elf hex eep lss sym clean clean_list flash install disasm prep size #coff extcoff debug gdb-config

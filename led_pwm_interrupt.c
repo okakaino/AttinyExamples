@@ -4,19 +4,22 @@
 #include <stdbool.h>
 #include <util/delay.h>
 
+#include "pwm.h"
+
 char duty_cycle = 0;
 
 int main(void)
 {
-	DDRB |= _BV(PINB2);
-	TCCR0A |= _BV(COM0A1) | _BV(WGM00) | _BV(WGM01);
-	TIMSK0 |= _BV(TOIE0);
+	SET_PWM_DDR;
+	SET_TCCR_COM;
+	SET_TCCR_WGM;
+	SET_TIMER_MASK;
 
-	OCR0A = duty_cycle * 255 / 100;
+	SET_OCR(duty_cycle * 255 / 100);
 
 	sei();
 
-	TCCR0B |= _BV(CS00) | _BV(CS01);
+	SET_TCCR_CLOCK;
 
 	bool counting_up = true;
 
@@ -43,5 +46,5 @@ int main(void)
 
 ISR(TIM0_OVF_vect)
 {
-	OCR0A = duty_cycle * 255 / 100;
+	SET_OCR(duty_cycle * 255 / 100);
 }
