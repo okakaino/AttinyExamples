@@ -1,6 +1,6 @@
 
-#ifndef __PWM_H__
-#define __PWM_H__
+#ifndef __PWM_TIMER0_H__
+#define __PWM_TIMER0_H__
 
 #define MODE_NORMAL					0b000
 #define MODE_PWM_PHASE_CORRECT		0b001
